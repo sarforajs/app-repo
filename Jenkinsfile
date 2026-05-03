@@ -29,16 +29,28 @@ pipeline {
 
         stage('Update Deploy Repo') {
             steps {
-                sh '''
-                git clone $DEPLOY_REPO
-                cd deploy-repo
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+                )]) {
+                    sh '''
+                    rm -rf deploy-repo
 
-                sed -i "s/tag:.*/tag: $TAG/" mychart/values.yaml
+                    git clone https://$GIT_USER:$GIT_PASS@github.com/sarforajs/deploy-repo.git
+                    cd deploy-repo
 
-                git add .
-                git commit -m "update image tag to $TAG"
-                git push
-                '''
+                    sed -i "s/tag:.*/tag: $TAG/" mychart/values.yaml
+
+                    git config user.name "jenkins"
+                    git config user.email "jenkins@example.com"
+
+                    git add .
+                    git commit -m "update image tag to $TAG" || echo "No changes to commit"
+
+                    git push https://$GIT_USER:$GIT_PASS@github.com/sarforajs/deploy-repo.git
+                    '''
+                }
             }
         }
     }
