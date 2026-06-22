@@ -40,7 +40,7 @@ pipeline {
                     git clone https://$GIT_USER:$GIT_PASS@github.com/sarforajs/deploy-repo.git
                     cd deploy-repo
 
-                    sed -i "s/tag:.*/tag: $TAG/" mychart/values.yaml
+                    sed -i "s/tag:.*/tag: $TAG/" deploy-repo/dev/mychart/values.yaml
 
                     git config user.name "jenkins"
                     git config user.email "jenkins@example.com"
